@@ -1,0 +1,176 @@
+# Postia (postia.me) production stack — Hostinger VPS
+#
+# Pinned to upstream Postiz release v2.21.7 (deployment baseline tag
+# vixi-deploy-2026-05-04). The container joins the external `root_default`
+# network where Traefik (defined in /root/docker-compose.yml) is listening,
+# so Traefik picks it up automatically via the labels below.
+#
+# Bring up:   docker compose up -d
+# Tear down:  docker compose down            (preserves volumes)
+# Reset all:  docker compose down -v         (deletes volumes — wipes data)
+
+services:
+  postiz:
+    image: ghcr.io/gitroomhq/postiz-app:v2.21.7
+    restart: unless-stopped
+    networks:
+      - default
+      - traefik
+    environment:
+      MAIN_URL: 'https://postia.me'
+      FRONTEND_URL: 'https://postia.me'
+      NEXT_PUBLIC_BACKEND_URL: 'https://postia.me/api'
+      BACKEND_INTERNAL_URL: 'http://localhost:3000'
+      JWT_SECRET: '${JWT_SECRET}'
+      DATABASE_URL: 'postgresql://postia:${DB_PASSWORD}@postgres:5432/postia_db'
+      REDIS_URL: 'redis://redis:6379'
+      IS_GENERAL: 'true'
+      DISABLE_REGISTRATION: 'true'
+      STORAGE_PROVIDER: 'local'
+      UPLOAD_DIRECTORY: '/uploads'
+      NEXT_PUBLIC_UPLOAD_DIRECTORY: '/uploads'
+      EMAIL_FROM_NAME: 'Postia'
+      TEMPORAL_ADDRESS: 'temporal:7233'
+      OPENAI_API_KEY: '${OPENAI_API_KEY:-}'
+      X_API_KEY: '${X_API_KEY:-}'
+      X_API_SECRET: '${X_API_SECRET:-}'
+      LINKEDIN_CLIENT_ID: '${LINKEDIN_CLIENT_ID:-}'
+      LINKEDIN_CLIENT_SECRET: '${LINKEDIN_CLIENT_SECRET:-}'
+      REDDIT_CLIENT_ID: '${REDDIT_CLIENT_ID:-}'
+      REDDIT_CLIENT_SECRET: '${REDDIT_CLIENT_SECRET:-}'
+      INSTAGRAM_APP_ID: '${INSTAGRAM_APP_ID:-}'
+      INSTAGRAM_APP_SECRET: '${INSTAGRAM_APP_SECRET:-}'
+      FACEBOOK_APP_ID: '${FACEBOOK_APP_ID:-}'
+      FACEBOOK_APP_SECRET: '${FACEBOOK_APP_SECRET:-}'
+      THREADS_APP_ID: '${THREADS_APP_ID:-}'
+      THREADS_APP_SECRET: '${THREADS_APP_SECRET:-}'
+      YOUTUBE_CLIENT_ID: '${YOUTUBE_CLIENT_ID:-}'
+      YOUTUBE_CLIENT_SECRET: '${YOUTUBE_CLIENT_SECRET:-}'
+      TIKTOK_CLIENT_ID: '${TIKTOK_CLIENT_ID:-}'
+      TIKTOK_CLIENT_SECRET: '${TIKTOK_CLIENT_SECRET:-}'
+      PINTEREST_CLIENT_ID: '${PINTEREST_CLIENT_ID:-}'
+      PINTEREST_CLIENT_SECRET: '${PINTEREST_CLIENT_SECRET:-}'
+      DRIBBBLE_CLIENT_ID: '${DRIBBBLE_CLIENT_ID:-}'
+      DRIBBBLE_CLIENT_SECRET: '${DRIBBBLE_CLIENT_SECRET:-}'
+      DISCORD_CLIENT_ID: '${DISCORD_CLIENT_ID:-}'
+      DISCORD_CLIENT_SECRET: '${DISCORD_CLIENT_SECRET:-}'
+      DISCORD_BOT_TOKEN_ID: '${DISCORD_BOT_TOKEN_ID:-}'
+      SLACK_ID: '${SLACK_ID:-}'
+      SLACK_SECRET: '${SLACK_SECRET:-}'
+      SLACK_SIGNING_SECRET: '${SLACK_SIGNING_SECRET:-}'
+      TELEGRAM_TOKEN: '${TELEGRAM_TOKEN:-}'
+      MASTODON_URL: '${MASTODON_URL:-https://mastodon.social}'
+      MASTODON_CLIENT_ID: '${MASTODON_CLIENT_ID:-}'
+      MASTODON_CLIENT_SECRET: '${MASTODON_CLIENT_SECRET:-}'
+      GITHUB_CLIENT_ID: '${GITHUB_CLIENT_ID:-}'
+      GITHUB_CLIENT_SECRET: '${GITHUB_CLIENT_SECRET:-}'
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=root_default
+      # === Main app router: postia.me serves the Postiz UI/API ===
+      - traefik.http.routers.postia.rule=Host(`postia.me`)
+      - traefik.http.routers.postia.entrypoints=websecure
+      - traefik.http.routers.postia.tls=true
+      - traefik.http.routers.postia.tls.certresolver=mytlschallenge
+      - traefik.http.routers.postia.service=postia
+      - traefik.http.services.postia.loadbalancer.server.port=5000
+      # === Redirect router: www.postia.me, postiame.com, www.postiame.com -> https://postia.me ===
+      - traefik.http.routers.postia-redirect.rule=Host(`www.postia.me`) || Host(`postiame.com`) || Host(`www.postiame.com`)
+      - traefik.http.routers.postia-redirect.entrypoints=websecure
+      - traefik.http.routers.postia-redirect.tls=true
+      - traefik.http.routers.postia-redirect.tls.certresolver=mytlschallenge
+      - traefik.http.routers.postia-redirect.service=postia
+      - traefik.http.routers.postia-redirect.middlewares=postia-canonical
+      - traefik.http.middlewares.postia-canonical.redirectregex.regex=^https?://(?:www\.postia\.me|(?:www\.)?postiame\.com)/?(.*)$$
+      - traefik.http.middlewares.postia-canonical.redirectregex.replacement=https://postia.me/$${1}
+      - traefik.http.middlewares.postia-canonical.redirectregex.permanent=true
+    volumes:
+      - postia-config:/config
+      - postia-uploads:/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+
+  temporal:
+    image: temporalio/auto-setup:1.28.1
+    restart: unless-stopped
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=postia
+      - POSTGRES_PWD=${DB_PASSWORD}
+      - POSTGRES_SEEDS=postgres
+      - ENABLE_ES=true
+      - ES_SEEDS=elasticsearch
+      - ES_VERSION=v7
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+
+  elasticsearch:
+    image: elasticsearch:7.17.27
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: 'postia'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+      POSTGRES_DB: 'postia_db'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postia -d postia_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  traefik:
+    external: true
+    name: root_default
+
+volumes:
+  postia-config:
+  postia-uploads:
+  postgres-data:
+  redis-data:
+  es-data:

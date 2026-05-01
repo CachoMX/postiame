@@ -58,3 +58,6 @@ Thumbs.db
 .secrets/
 libraries/plugins/src/plugins.ts
 i18n.cache
+
+# Vixi/Postia local-only docs (contain credentials/access info — keep in 1Password instead)
+SOW-Postia-Migration.md

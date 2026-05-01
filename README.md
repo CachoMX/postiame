@@ -13,6 +13,31 @@
 </a>
 </p>
 
+---
+
+## Fork notes — Vixi / Postia deployment
+
+This is a fork of [`gitroomhq/postiz-app`](https://github.com/gitroomhq/postiz-app) maintained for the **`postia.me`** production deployment. The rest of this README is unchanged from upstream.
+
+**Sync status:** `main` tracks `upstream/main` 1:1 — no fork-only commits. Add the upstream remote with:
+
+```bash
+git remote add upstream https://github.com/gitroomhq/postiz-app.git
+git fetch upstream --tags
+```
+
+**Deployment baseline:** Pinned to upstream release **`v2.21.7`** via tag `vixi-deploy-2026-05-04`. To check out the deployment baseline:
+
+```bash
+git checkout vixi-deploy-2026-05-04
+```
+
+**Image source:** Production runs the official `ghcr.io/gitroomhq/postiz-app:v2.21.7` Docker image — we are **not** building from this fork. The fork exists as a reference and patch surface; if we need to ship a custom build later, switch to GHA-built images at that point.
+
+**Migration plan:** Full deployment plan, OAuth provisioning matrix, and acceptance criteria live in 1Password (Vixi shared vault) — not in this repo, since the doc references credentials. Ask Carlos for access.
+
+---
+
 <h3 align="center"><strong><a href="https://github.com/gitroomhq/postiz-agent">NEW: check out Postiz agent CLI! perfect for OpenClaw and other agents</a></strong></h3>
 <div align="center">
   <strong>

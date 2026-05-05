@@ -1,0 +1,63 @@
+# Self-hosted WordPress at blog.postia.me — Hostinger VPS
+#
+# Lightweight WP install used to test the Postiz WordPress integration
+# end-to-end. Joins the existing root_default network so Traefik picks
+# it up automatically and issues a Let's Encrypt cert via TLS-ALPN-01.
+#
+# Bring up:   docker compose up -d
+# Tear down:  docker compose down            (preserves volumes)
+# Reset all:  docker compose down -v         (deletes volumes — wipes WP)
+
+services:
+  wordpress:
+    image: wordpress:6-php8.3-apache
+    restart: unless-stopped
+    networks:
+      - default
+      - traefik
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: '${DB_PASSWORD}'
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: 'wp_'
+      WORDPRESS_DEBUG: '0'
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=root_default
+      - traefik.http.routers.blog-postia.rule=Host(`blog.postia.me`)
+      - traefik.http.routers.blog-postia.entrypoints=websecure
+      - traefik.http.routers.blog-postia.tls=true
+      - traefik.http.routers.blog-postia.tls.certresolver=mytlschallenge
+      - traefik.http.services.blog-postia.loadbalancer.server.port=80
+    volumes:
+      - wp-data:/var/www/html
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  mariadb:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: '${DB_ROOT_PASSWORD}'
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+networks:
+  traefik:
+    external: true
+    name: root_default
+
+volumes:
+  wp-data:
+  db-data:

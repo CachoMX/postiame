@@ -31,6 +31,7 @@ services:
       NEXT_PUBLIC_UPLOAD_DIRECTORY: '/uploads'
       EMAIL_FROM_NAME: 'Postia'
       TEMPORAL_ADDRESS: 'temporal:7233'
+      EXTENSION_ID: '${EXTENSION_ID:-}'
       OPENAI_API_KEY: '${OPENAI_API_KEY:-}'
       X_API_KEY: '${X_API_KEY:-}'
       X_API_SECRET: '${X_API_SECRET:-}'

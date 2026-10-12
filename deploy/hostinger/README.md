@@ -18,7 +18,7 @@ Production deployment artifacts for `postia.me` running on the Hostinger VPS at 
 │       └─ Watches Docker network: root_default                              │
 │                                                                            │
 │   /docker/postia/docker-compose.yml ◄── THIS STACK                         │
-│       ├─ postiz   (ghcr.io/gitroomhq/postiz-app:v2.21.7, port 5000)        │
+│       ├─ postiz   (ghcr.io/gitroomhq/postiz-app:v2.25.1, port 5000)        │
 │       ├─ postgres (postgres:17-alpine)                                     │
 │       ├─ redis    (redis:7-alpine)                                         │
 │       ├─ temporal (temporalio/auto-setup:1.28.1)                           │

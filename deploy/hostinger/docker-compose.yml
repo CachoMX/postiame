@@ -11,7 +11,7 @@
 
 services:
   postiz:
-    image: ghcr.io/gitroomhq/postiz-app:v2.21.7
+    image: ghcr.io/gitroomhq/postiz-app:v2.25.1
     restart: unless-stopped
     networks:
       - default

@@ -47,8 +47,12 @@ services:
       THREADS_APP_SECRET: '${THREADS_APP_SECRET:-}'
       YOUTUBE_CLIENT_ID: '${YOUTUBE_CLIENT_ID:-}'
       YOUTUBE_CLIENT_SECRET: '${YOUTUBE_CLIENT_SECRET:-}'
+      GOOGLE_GMB_CLIENT_ID: '${GOOGLE_GMB_CLIENT_ID:-}'
+      GOOGLE_GMB_CLIENT_SECRET: '${GOOGLE_GMB_CLIENT_SECRET:-}'
       TIKTOK_CLIENT_ID: '${TIKTOK_CLIENT_ID:-}'
       TIKTOK_CLIENT_SECRET: '${TIKTOK_CLIENT_SECRET:-}'
+      TIKTOK_BUSINESS_CLIENT_ID: '${TIKTOK_BUSINESS_CLIENT_ID:-}'
+      TIKTOK_BUSINESS_CLIENT_SECRET: '${TIKTOK_BUSINESS_CLIENT_SECRET:-}'
       PINTEREST_CLIENT_ID: '${PINTEREST_CLIENT_ID:-}'
       PINTEREST_CLIENT_SECRET: '${PINTEREST_CLIENT_SECRET:-}'
       DRIBBBLE_CLIENT_ID: '${DRIBBBLE_CLIENT_ID:-}'
@@ -96,6 +100,30 @@ services:
         condition: service_healthy
       temporal:
         condition: service_healthy
+
+  # Static Terms of Service / Privacy Policy pages (required by the TikTok,
+  # Meta and Google app reviews). Postiz is the upstream image, so these
+  # pages are served by a tiny nginx that Traefik routes /terms, /privacy and
+  # /legal/* to. The mounts use the absolute repo path because
+  # /docker/postia/docker-compose.yml is a symlink into /docker/postia-repo.
+  legal:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    networks:
+      - traefik
+    volumes:
+      - /docker/postia-repo/deploy/hostinger/legal:/usr/share/nginx/html:ro
+      - /docker/postia-repo/deploy/hostinger/legal/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=root_default
+      - traefik.http.routers.postia-legal.rule=Host(`postia.me`) && (Path(`/terms`) || Path(`/privacy`) || PathPrefix(`/legal/`))
+      - traefik.http.routers.postia-legal.priority=100
+      - traefik.http.routers.postia-legal.entrypoints=websecure
+      - traefik.http.routers.postia-legal.tls=true
+      - traefik.http.routers.postia-legal.tls.certresolver=mytlschallenge
+      - traefik.http.routers.postia-legal.service=postia-legal
+      - traefik.http.services.postia-legal.loadbalancer.server.port=80
 
   temporal:
     image: temporalio/auto-setup:1.28.1

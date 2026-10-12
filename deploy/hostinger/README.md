@@ -38,6 +38,13 @@ Routing (handled by Traefik labels in `docker-compose.yml`):
 | `www.postia.me`    | 301 → `https://postia.me`           |
 | `postiame.com`     | 301 → `https://postia.me`           |
 | `www.postiame.com` | 301 → `https://postia.me`           |
+| `postia.me/terms`, `/privacy`, `/legal/*` | Static legal pages (`legal` nginx service) |
+
+The Terms of Service and Privacy Policy pages required by the TikTok, Meta and
+Google app reviews live in `deploy/hostinger/legal/`. Since Postiz runs from the
+upstream image, they are served by a small `nginx` container that mounts that
+folder from `/docker/postia-repo`. Edit the HTML there and push to `main` to
+publish changes.
 
 ## First-time deployment
 

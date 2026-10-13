@@ -101,9 +101,9 @@ services:
       temporal:
         condition: service_healthy
 
-  # Static Terms of Service / Privacy Policy pages (required by the TikTok,
+  # Static home, Terms of Service and Privacy Policy pages (required by the TikTok,
   # Meta and Google app reviews). Postiz is the upstream image, so these
-  # pages are served by a tiny nginx that Traefik routes /terms, /privacy and
+  # pages are served by a tiny nginx that Traefik routes /home, /terms, /privacy and
   # /legal/* to. The mounts use the absolute repo path because
   # /docker/postia/docker-compose.yml is a symlink into /docker/postia-repo.
   legal:
@@ -117,7 +117,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=root_default
-      - traefik.http.routers.postia-legal.rule=Host(`postia.me`) && (Path(`/terms`) || Path(`/privacy`) || PathPrefix(`/legal/`))
+      - traefik.http.routers.postia-legal.rule=Host(`postia.me`) && (Path(`/home`) || Path(`/terms`) || Path(`/privacy`) || PathPrefix(`/legal/`))
       - traefik.http.routers.postia-legal.priority=100
       - traefik.http.routers.postia-legal.entrypoints=websecure
       - traefik.http.routers.postia-legal.tls=true

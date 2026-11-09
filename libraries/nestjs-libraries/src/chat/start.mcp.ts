@@ -143,14 +143,14 @@ export const startMcp = async (app: INestApplication) => {
     name: 'Postia MCP',
     version: '1.0.0',
     tools,
-    agents: { postiz: agent },
+    agents: { postia: agent },
     appResources,
   };
 
   const server = new MCPServer({ ...serverConfig, protocolVersion: '2026-07-28' });
 
   // The directory-facing servers don't register the agent - it would be
-  // exposed as an annotation-less catch-all ask_postiz tool, which the
+  // exposed as an annotation-less catch-all ask_postia tool, which the
   // ChatGPT and Claude directory reviews reject
   const oauthServer = new MCPServer({
     name: 'Postia MCP',

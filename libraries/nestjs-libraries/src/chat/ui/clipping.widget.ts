@@ -1,4 +1,4 @@
-export const CLIPPING_WIDGET_URI = 'ui://postiz/clipping';
+export const CLIPPING_WIDGET_URI = 'ui://postia/clipping';
 
 // MCP Apps (SEP-1865) widget, same shape as the upload widget: a single
 // self-contained HTML document in the host's sandboxed iframe. A chat model
@@ -265,7 +265,7 @@ export const clippingWidgetHtml = (backendUrl: string) => `<!DOCTYPE html>
   }
 
   request('ui/initialize', {
-    appInfo: { name: 'postiz-clipping', version: '1.0.0' },
+    appInfo: { name: 'postia-clipping', version: '1.0.0' },
     appCapabilities: {},
     protocolVersion: '2026-01-26',
   }).then(

@@ -303,7 +303,7 @@ const McpSection = ({
         </div>
         <div className="text-[13px] text-customColor18 mt-[2px]">
           {t(
-            'connect_your_mcp_client_to_postiz_to_schedule_your_posts_faster',
+            'connect_your_mcp_client_to_postia_to_schedule_your_posts_faster',
             'Connect Postia MCP server to your client (Http streaming) to schedule your posts faster.'
           )}
         </div>
@@ -478,7 +478,7 @@ const PublicApiContent = () => {
           </div>
           <div className="text-[13px] text-customColor18 mt-[2px]">
             {t(
-              'use_postiz_api_to_integrate_with_your_tools',
+              'use_postia_api_to_integrate_with_your_tools',
               'Use Postia API to integrate with your tools.'
             )}
           </div>

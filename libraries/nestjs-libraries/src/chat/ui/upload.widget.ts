@@ -2,7 +2,7 @@ import { getMaxSize } from '@gitroom/nestjs-libraries/upload/custom.upload.valid
 
 const megabytes = (mime: string) => Math.floor(getMaxSize(mime) / 1024 / 1024);
 
-export const UPLOAD_WIDGET_URI = 'ui://postiz/upload';
+export const UPLOAD_WIDGET_URI = 'ui://postia/upload';
 
 // MCP Apps (SEP-1865) widget: a single self-contained HTML document rendered by
 // the host inside a sandboxed iframe. It can't load our bundles or cookies, so
@@ -318,7 +318,7 @@ export const uploadWidgetHtml = (backendUrl: string) => `<!DOCTYPE html>
   });
 
   request('ui/initialize', {
-    appInfo: { name: 'postiz-upload', version: '1.0.0' },
+    appInfo: { name: 'postia-upload', version: '1.0.0' },
     appCapabilities: {},
     protocolVersion: '2026-01-26',
   }).then(

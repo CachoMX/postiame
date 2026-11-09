@@ -1,7 +1,8 @@
 # Postia (postia.me) production stack — Hostinger VPS
 #
-# Pinned to upstream Postiz release v2.21.7 (deployment baseline tag
-# vixi-deploy-2026-05-04). The container joins the external `root_default`
+# Runs the Postia image built from this fork (upstream Postiz v2.25.3 + Postia
+# branding) by .github/workflows/build-postia-image.yml. To update, set the
+# sha-<commit> tag that workflow prints. The container joins the external `root_default`
 # network where Traefik (defined in /root/docker-compose.yml) is listening,
 # so Traefik picks it up automatically via the labels below.
 #
@@ -11,7 +12,7 @@
 
 services:
   postiz:
-    image: ghcr.io/gitroomhq/postiz-app:v2.25.3
+    image: ghcr.io/cachomx/postiame:sha-24e140c
     restart: unless-stopped
     networks:
       - default

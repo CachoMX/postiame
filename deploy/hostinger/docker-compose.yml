@@ -12,7 +12,7 @@
 
 services:
   postiz:
-    image: ghcr.io/cachomx/postiame:sha-09a47c2
+    image: ghcr.io/cachomx/postiame:sha-4538efd
     restart: unless-stopped
     networks:
       - default

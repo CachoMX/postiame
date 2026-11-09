@@ -1,12 +1,12 @@
 import { useVariables } from '@gitroom/react/helpers/variable.context';
 export const ChromeExtensionComponent = () => {
-  const { billingEnabled } = useVariables();
-  if (!billingEnabled) {
+  const { billingEnabled, extensionId } = useVariables();
+  if (!billingEnabled || !extensionId) {
     return null;
   }
   return (
     <a
-      href="https://chromewebstore.google.com/detail/postiz/cidhffagahknaeodkplfbcpfeielnkjl"
+      href={`https://chromewebstore.google.com/detail/${extensionId}`}
       target="_blank"
       className="hover:text-newTextColor"
     >

@@ -93,7 +93,7 @@ export const OAuthSelfHosted: FC<{
         removeError={true}
         value={instanceUrl}
         onChange={(e) => setInstanceUrl(e.target.value)}
-        placeholder="https://postiz.example.com"
+        placeholder="https://postia.example.com"
         inputMode="url"
         autoComplete="off"
         spellCheck={false}

@@ -94,7 +94,7 @@ export class McpRelayService {
       );
     } catch {
       throw new HttpException(
-        'Enter the address of your Postia instance, for example https://postiz.example.com',
+        'Enter the address of your Postia instance, for example https://postia.example.com',
         HttpStatus.BAD_REQUEST
       );
     }
@@ -103,7 +103,7 @@ export class McpRelayService {
     // user "me" on company.com) is never sent anywhere
     if (url.username || url.password) {
       throw new HttpException(
-        'Enter the address of your Postia instance, for example https://postiz.example.com',
+        'Enter the address of your Postia instance, for example https://postia.example.com',
         HttpStatus.BAD_REQUEST
       );
     }

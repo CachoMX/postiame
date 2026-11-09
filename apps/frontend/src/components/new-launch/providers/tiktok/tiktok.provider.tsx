@@ -40,7 +40,6 @@ const TikTokSettings: FC<{
 
   const disclose = watch('disclose');
   const autoAddMusic = watch('autoAddMusic');
-  const brand_organic_toggle = watch('brand_organic_toggle');
   const brand_content_toggle = watch('brand_content_toggle');
   const content_posting_method = watch('content_posting_method');
   const isUploadMode = content_posting_method === 'UPLOAD';
@@ -138,7 +137,9 @@ const TikTokSettings: FC<{
           label={t('label_who_can_see_this_video', 'Who can see this video?')}
           disabled={isUploadMode}
           {...register('privacy_level', {
-            value: 'PUBLIC_TO_EVERYONE',
+            // TikTok's content sharing guidelines: no preselected privacy
+            // level, the user has to choose one.
+            value: '',
           })}
         >
           <option value="">{t('select', 'Select')}</option>
@@ -260,7 +261,8 @@ const TikTokSettings: FC<{
             variant="hollow"
             disabled={isUploadMode}
             {...register('comment', {
-              value: true,
+              // TikTok's content sharing guidelines: interactions start off.
+              value: false,
             })}
           />
           <Checkbox
@@ -346,34 +348,30 @@ const TikTokSettings: FC<{
               'This video will be classified as Branded Content.'
             )}
           </div>
-          {(brand_organic_toggle || brand_content_toggle) && (
-            <div className="my-[10px] text-[14px] text-balance">
-              {t(
-                'by_posting_you_agree_to_tiktoks',
-                "By posting, you agree to TikTok's"
-              )}
-              {[
-                brand_organic_toggle || brand_content_toggle ? (
-                  <a
-                    target="_blank"
-                    className="text-[#B69DEC] hover:underline"
-                    href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
-                  >
-                    {t('music_usage_confirmation', 'Music Usage Confirmation')}
-                  </a>
-                ) : undefined,
-                brand_content_toggle ? <> {t('and', 'and')} </> : undefined,
-                brand_content_toggle ? (
-                  <a
-                    target="_blank"
-                    className="text-[#B69DEC] hover:underline"
-                    href="https://www.tiktok.com/legal/page/global/bc-policy/en"
-                  >
-                    {t('branded_content_policy', 'Branded Content Policy')}
-                  </a>
-                ) : undefined,
-              ].filter((f) => f)}
-            </div>
+        </div>
+        {/* TikTok's content sharing guidelines: the declaration is shown
+            before every direct post, not only for commercial content. */}
+        <div className="my-[10px] text-[14px] text-balance">
+          {t('by_posting_you_agree_to_tiktoks', "By posting, you agree to TikTok's")}{' '}
+          <a
+            target="_blank"
+            className="text-[#B69DEC] hover:underline"
+            href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+          >
+            {t('music_usage_confirmation', 'Music Usage Confirmation')}
+          </a>
+          {brand_content_toggle && (
+            <>
+              {' '}
+              {t('and', 'and')}{' '}
+              <a
+                target="_blank"
+                className="text-[#B69DEC] hover:underline"
+                href="https://www.tiktok.com/legal/page/global/bc-policy/en"
+              >
+                {t('branded_content_policy', 'Branded Content Policy')}
+              </a>
+            </>
           )}
         </div>
       </div>

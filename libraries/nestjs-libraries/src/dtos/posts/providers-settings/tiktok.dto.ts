@@ -77,6 +77,9 @@ export class TikTokDto {
   })
   title: string;
 
+  // TikTok ignores it on UPLOAD, where the UI disables the field, so only a
+  // direct post has to carry a privacy level the user picked.
+  @ValidateIf((p) => p.content_posting_method !== 'UPLOAD')
   @IsIn([
     'PUBLIC_TO_EVERYONE',
     'MUTUAL_FOLLOW_FRIENDS',
